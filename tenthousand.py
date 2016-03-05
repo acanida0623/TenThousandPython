@@ -1,28 +1,28 @@
 import random
+import time
 
 players_container ={}
 score_board = {'player1':0,
                'player2':0,
                'player3':0,
-               'player4':0}
-dice_container = {'current_roll':[1,2,3,4,5,6],
-                  'dice_held':[0,0,0,0,0,0]}
+               'player4':0,
+               'player1tempscore':0,
+               'player2tempscore':0,
+               'player3tempscore':0,
+               'player4tempscore':0}
+
+current_dice_container =[1,2,3,4,5,6]
+dice_held_container = [0,0,0,0,0,0]
+
 current_turn = "player1"
 rolls_left = 3
 final_score = False
+num_playing = 0
 
-
-
-"""def roll_dice(number):
-    dice_rolled = []
-    for x in range(number):
-        result = random.randint(1,6)
-        dice_rolled['result)
-    return dice_rolled"""
 
 
 def calc_score_rolled():
-    current_hand = dice_container['current_roll'].sort()
+
     current_roll = []
     final_score_roll = []
     count1 = 0
@@ -38,13 +38,13 @@ def calc_score_rolled():
     #ignore the 2s because they've already been scored
     for dice in range(6):
 
-        if dice_container['dice_held'][dice] == 0:
+        if dice_held_container[dice] == 0:
 
-            current_roll.append(dice_container['current_roll'][dice])
+            current_roll.append(current_dice_container[dice])
 
-        if dice_container['dice_held'][dice] == 1:
+        if dice_held_container[dice] == 1:
 
-            final_score_roll.append(dice_container['current_roll'][dice])
+            final_score_roll.append(current_dice_container[dice])
 
     print (final_score_roll)
 
@@ -500,18 +500,31 @@ def calc_score_rolled():
     return possible_scores_rolled
 
 def create_roll():
-    for dice in range(6):
+    global rolls_left
+    rolls_left -= 1
+    not_rolled = 0
 
-        if dice_container['dice_held'][dice] == 0:
-            dice_container['current_roll'][dice] = random.randint(1,6)
-        currentplayer = ""
-        #Check who's turn it is and print the player's name
+    for dice in range(6):
+        if dice_held_container[dice] == 0:
+            not_rolled += 1
+
+
+
+    if not_rolled > 0:
+        for dice in range(6):
+            if dice_held_container[dice] == 0:
+                current_dice_container[dice] = random.randint(1,6)
+    else:
+        for dice in range(6):
+            current_dice_container[dice] = random.randint(1,6)
+        reset_indices()
 
 
 create_roll()
 scores_possible = calc_score_rolled()
 
 def initiate_players():
+    global num_playing
     while True:
         try:
             number_playing = int(input("How many people will be playing? "))
@@ -523,6 +536,7 @@ def initiate_players():
 
         else:
             if number_playing > 0 and number_playing < 5:
+                num_playing = number_playing
                 return number_playing
 
             else:
@@ -573,181 +587,312 @@ def reset_board():
 
         dice_number = dice + 1
 
-        if dice_container['dice_held'][dice] == 0:
+        if dice_held_container[dice] == 0:
 
             print ()
-            print("DICE NUMBER {num} :  {roll}".format(num=dice_number,roll=dice_container['current_roll'][dice]))
+            print("DICE NUMBER {num} :  {roll}".format(num=dice_number,roll=current_dice_container[dice]))
             print ()
 
-        elif dice_container['dice_held'][dice] == 2:
+        elif dice_held_container[dice] == 2:
 
             print ()
-            print("DICE NUMBER {num} IS HELD FROM LAST ROLL. CAN'T BE ROLLED AGAIN: {roll}".format(num=dice_number,roll=dice_container['current_roll'][dice]))
+            print("HELD FROM LAST ROLL. CAN'T BE ROLLED AGAIN: {roll}".format(num=dice_number,roll=current_dice_container[dice]))
             print ()
 
 
         else:
             print()
-            print("DICE NUMBER {num} IS BEING HELD :  {roll}".format(num=dice_number,roll=dice_container['current_roll'][dice]))
+            print("DICE NUMBER {num} IS BEING HELD :  {roll}".format(num=dice_number,roll=current_dice_container[dice]))
             print()
-    print (scores_possible)
+    print (bool(scores_possible))
+
+def change_turn():
+    global current_turn
+    global rolls_left
+    rolls_left = 3
+    if current_turn == "player1" and num_playing > 1:
+        score_board['player1tempscore'] = 0
+        current_turn = "player2"
+
+    elif current_turn == "player2" and num_playing > 2:
+        score_board['player2tempscore'] = 0
+        current_turn = "player3"
+
+    elif current_turn == "player3" and num_playing > 3:
+        score_board['player3tempscore'] = 0
+        current_turn = "player4"
+
+    elif current_turn == "player4":
+        score_board['player4tempscore'] = 0
+        current_turn = "player1"
+
+
+def check_if_scored():
+    #Check if the player scored on their roll, if not, set current turn to next player and return false
+    global current_turn
+    if bool(scores_possible) == False:
+        if current_turn == "player1" and num_playing > 1:
+            score_board['player1tempscore'] = 0
+            current_turn = "player2"
+            print()
+            print("You did not score anything. It's player 2's turn. ")
+            print()
+            return False
+        elif current_turn == "player2" and num_playing > 2:
+            score_board['player2tempscore'] = 0
+            current_turn = "player3"
+            print()
+            print("You did not score anything. It's player 3's turn. ")
+            print()
+            return False
+        elif current_turn == "player3" and num_playing > 3:
+            score_board['player3tempscore'] = 0
+            current_turn = "player4"
+            print()
+            print("You did not score anything. It's player 4's turn. ")
+            print()
+            return False
+        elif current_turn == "player4":
+            score_board['player4tempscore'] = 0
+            current_turn = "player1"
+            print()
+            print("You did not score anything. It's player 1's turn. ")
+            print()
+            return False
+        else:
+            print()
+            print("You didn't roll anything, try again! ")
+            print()
+            return False
+    else:
+        return True
 
 
 def hold_dice():
+    global scores_possible
+    global rolls_left
+    global final_score
     holding = True
     hold_index = 0
     reset_board()
+    dice_held = False
+    if check_if_scored() == True:
+        while holding:
+            hold_input = str(input("What number die would you like to hold? Please type in (1 - 6) to hold a die for next turn. Or '(R)oll' the leftover dice. "))
 
-    while holding:
-        hold_input = str(input("What number die would you like to hold? Please type in (1 - 6) to hold a die for next turn. Or '(R)oll' the leftover dice. "))
+            if hold_input == '1':
 
-        if hold_input == '1':
+                if dice_held_container[0] == 0:
+                    dice_held_container[0] = 1
+                    reset_board()
+                    continue
+                elif dice_held_container[0] == 2:
+                    print()
+                    print("Sorry you cannot change that die. ")
+                    print()
+                    continue
+                else:
+                    dice_held_container[0] = 0
+                    reset_board()
+                    continue
 
-            if dice_container['dice_held'][0] == 0:
-                dice_container['dice_held'][0] = 1
-                reset_board()
-                continue
-            elif dice_container['dice_held'][0] == 2:
-                print()
-                print("Sorry you cannot change that die. ")
-                print()
-                continue
-            else:
-                dice_container['dice_held'][0] = 0
-                reset_board()
-                continue
+            elif hold_input == '2':
+                if dice_held_container[1] == 0:
+                    dice_held_container[1] = 1
 
-        elif hold_input == '2':
-            if dice_container['dice_held'][1] == 0:
-                dice_container['dice_held'][1] = 1
+                    reset_board()
+                    continue
 
-                reset_board()
-                continue
+                elif dice_held_container[1] == 2:
+                    print()
+                    print("Sorry you cannot change that die. ")
+                    print()
+                    continue
+                else:
+                    dice_held_container[1] = 0
+                    reset_board()
+                    continue
 
-            elif dice_container['dice_held'][1] == 2:
-                print()
-                print("Sorry you cannot change that die. ")
-                print()
-                continue
-            else:
-                dice_container['dice_held'][1] = 0
-                reset_board()
-                continue
+            elif hold_input == '3':
+                if dice_held_container[2] == 0:
+                    dice_held_container[2] = 1
+                    reset_board()
+                    continue
+                elif dice_held_container[2] == 2:
+                    print()
+                    print("Sorry you cannot change that die. ")
+                    print()
+                    continue
+                else:
+                    dice_held_container[2] = 0
+                    reset_board()
+                    continue
+            elif hold_input == '4':
+                if dice_held_container[3] == 0:
+                    dice_held_container[3] = 1
 
-        elif hold_input == '3':
-            if dice_container['dice_held'][2] == 0:
-                dice_container['dice_held'][2] = 1
-                reset_board()
-                continue
-            elif dice_container['dice_held'][2] == 2:
-                print()
-                print("Sorry you cannot change that die. ")
-                print()
-                continue
-            else:
-                dice_container['dice_held'][2] = 0
-                reset_board()
-                continue
-        elif hold_input == '4':
-            if dice_container['dice_held'][3] == 0:
-                dice_container['dice_held'][3] = 1
+                    reset_board()
+                    continue
 
-                reset_board()
-                continue
+                elif dice_held_container[3] == 2:
+                    print()
+                    print("Sorry you cannot change that die. ")
+                    print()
+                    continue
 
-            elif dice_container['dice_held'][3] == 2:
-                print()
-                print("Sorry you cannot change that die. ")
-                print()
-                continue
+                else:
+                    dice_held_container[3] = 0
+                    reset_board()
+                    continue
 
-            else:
-                dice_container['dice_held'][3] = 0
-                reset_board()
-                continue
+            elif hold_input == '5':
+                if dice_held_container[4] == 0:
+                    dice_held_container[4] = 1
 
-        elif hold_input == '5':
-            if dice_container['dice_held'][4] == 0:
-                dice_container['dice_held'][4] = 1
+                    reset_board()
+                    continue
 
-                reset_board()
-                continue
+                elif dice_held_container[4] == 2:
+                    print()
+                    print("Sorry you cannot change that die. ")
+                    print()
+                    continue
 
-            elif dice_container['dice_held'][4] == 2:
-                print()
-                print("Sorry you cannot change that die. ")
-                print()
-                continue
+                else:
+                    dice_held_container[4] = 0
 
-            else:
-                dice_container['dice_held'][4] = 0
+                    reset_board()
+                    continue
 
-                reset_board()
-                continue
+            elif hold_input == '6':
+                if dice_held_container[5] == 0:
+                    dice_held_container[5] = 1
 
-        elif hold_input == '6':
-            if dice_container['dice_held'][5] == 0:
-                dice_container['dice_held'][5] = 1
+                    reset_board()
+                    continue
 
-                reset_board()
-                continue
+                elif dice_held_container[5] == 2:
+                    print()
+                    print("Sorry you cannot change that die. ")
+                    print()
+                    continue
+                else:
+                    dice_held_container[5] = 0
 
-            elif dice_container['dice_held'][5] == 2:
-                print()
-                print("Sorry you cannot change that die. ")
-                print()
-                continue
-            else:
-                dice_container['dice_held'][5] = 0
+                    reset_board()
+                    continue
 
-                reset_board()
-                continue
-
-        elif str(hold_input).lower() == "r" or str(hold_input).lower() == "roll":
-            global rolls_left
-            while rolls_left:
-                rolls_left -= 1
+            elif str(hold_input).lower() == "r" or str(hold_input).lower() == "roll":
                 roll_next()
                 break
-            else:
-                print ()
-                print("Sorry you have no more rolls left.")
-                print ()
-                break
 
-            continue
-                
-        elif str(hold_input).lower() == "done" or str(hold_input).lower() == "d":
-            global final_score
-            final_score = True
-            finish_turn()
-            break
+            elif str(hold_input).lower() == "done" or str(hold_input).lower() == "d":
+                global final_score
+
+                finish_turn()
+
+                break
+    else:
+        rolls_left = 3
+        reset_indices()
+        create_roll()
+        final_score = False
+        scores_possible = calc_score_rolled()
+        hold_dice()
+
+
+def reset_indices():
+    for dice in range(6):
+        dice_held_container[dice] = 0
+
+def update_hold_indices():
+    for dice in range(6):
+        if dice_held_container[dice] == 1:
+            dice_held_container[dice] = 2
+
 
 
 def roll_next():
+    dice_roll = 0
+    global scores_possible
+    dice_held = 0
 
+    #check to make sure they held any dice eg: if any indices are 1 if no ones then
+    for dice in range(6):
+        if dice_held_container[dice] == 1:
+            update_temp_score()
+            update_hold_indices()
+            create_roll()
+
+            scores_possible = calc_score_rolled()
+            hold_dice()
+            dice_roll += 1
+            break
+
+    if dice_roll == 0:
+        print()
+        print("You need to hold at least one dice each turn!")
+        print()
+        time.sleep(5)
+        hold_dice()
 
 
 
 
 
 def finish_turn():
-    update_score()
+    global scores_possible
+    global final_score
 
+    if rolls_left == 2:
+        update_temp_score()
+        update_score()
+        change_turn()
+        reset_indices()
+        create_roll()
+
+        scores_possible = calc_score_rolled()
+        hold_dice()
+
+    else:
+        final_score = True
+        update_score()
+        final_score = False
+        change_turn()
+        reset_indices()
+        create_roll()
+        scores_possible = calc_score_rolled()
+        hold_dice()
+
+
+
+def update_temp_score():
+    global final_score
+    final_score = True
+    temp_player = "{player}tempscore".format(player=current_turn)
+    score = calc_score_rolled()
+    final_score = False
+    if score:
+        highest_score_key = max(score, key=score.get)
+        print (score,"scoreheldtest")
+        print (highest_score_key)
+        score_board[temp_player] += score[highest_score_key]
+        print(score_board[temp_player],"tempscore")
 
 
 
 def update_score():
-    score = calc_score_rolled()
-    highest_score_key = max(score, key=score.get)
-    print (score,"scoreheldtest")
-    print (highest_score_key)
-
-    #for key in set(score) & set(scores_possible):
-    #    if score[key] == scores_possible[key]:
-    score_board[current_turn] += score[highest_score_key]
-    print (score_board)
-
+    tempscore = "{player}tempscore".format(player=current_turn)
+    if score_board[current_turn] < 1000:
+        if score_board[tempscore] > 1000:
+            score_board[current_turn] += score_board[tempscore]
+            print (score_board)
+        else:
+            print()
+            print("You need to score at least a thousand points to get on the board. ")
+    else:
+        score_board[current_turn] += score_board[tempscore]
+        print (score_board)
 
 
 
