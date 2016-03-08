@@ -2,7 +2,6 @@ import random
 import time
 
 
-
 players_container ={}
 score_board = {'player1':1000,
                'player2':0,
