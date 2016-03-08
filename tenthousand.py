@@ -1,8 +1,10 @@
 import random
 import time
 
+
+
 players_container ={}
-score_board = {'player1':0,
+score_board = {'player1':1000,
                'player2':0,
                'player3':0,
                'player4':0,
@@ -576,9 +578,9 @@ def reset_board():
     print()
     print()
     print("⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹")
-    print()
-    print("{player}'s current dice.... ".format(player=currentplayer))
-    print()
+    print("                                         |")
+    print("       {player}'s current dice                        Dice Held From Last Turn  ".format(player=currentplayer))
+    print("                                         |")
     print("⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹")
 
     for dice in range(6):
@@ -596,7 +598,7 @@ def reset_board():
         elif dice_held_container[dice] == 2:
 
             print ()
-            print("HELD FROM LAST ROLL. CAN'T BE ROLLED AGAIN: {roll}".format(num=dice_number,roll=current_dice_container[dice]))
+            print("{roll} - HELD FROM LAST ROLL. CAN'T BE ROLLED AGAIN".format(num=dice_number,roll=current_dice_container[dice]))
             print ()
 
 
@@ -604,19 +606,33 @@ def reset_board():
             print()
             print("DICE NUMBER {num} IS BEING HELD :  {roll}".format(num=dice_number,roll=current_dice_container[dice]))
             print()
-    print (bool(scores_possible))
+    print ("Possible combonations : ",scores_possible)
+    possible = "{name}tempscore".format(name=current_turn)
+    print ("Tenative Score -",score_board[possible])
 
 def change_turn():
     global current_turn
     global rolls_left
     rolls_left = 3
-    if current_turn == "player1" and num_playing > 1:
+    if current_turn == "player1" and num_playing == 1:
+        score_board['player1tempscore'] = 0
+        current_turn = "player1"
+
+    elif current_turn == "player1" and num_playing > 1:
         score_board['player1tempscore'] = 0
         current_turn = "player2"
+
+    elif current_turn == "player2" and num_playing == 2:
+        score_board['player2tempscore'] = 0
+        current_turn = "player1"
 
     elif current_turn == "player2" and num_playing > 2:
         score_board['player2tempscore'] = 0
         current_turn = "player3"
+
+    elif current_turn == "player3" and num_playing == 3:
+        score_board['player3tempscore'] = 0
+        current_turn = "player1"
 
     elif current_turn == "player3" and num_playing > 3:
         score_board['player3tempscore'] = 0
@@ -631,42 +647,89 @@ def check_if_scored():
     #Check if the player scored on their roll, if not, set current turn to next player and return false
     global current_turn
     if bool(scores_possible) == False:
-        if current_turn == "player1" and num_playing > 1:
+        if current_turn == "player1" and num_playing == 1:
+            score_board['player1tempscore'] = 0
+            current_turn = "player1"
+            print()
+            print("You did not score anything. Try again. ")
+            print()
+            time.sleep(5)
+            return False
+
+        elif current_turn == "player1" and num_playing > 1:
             score_board['player1tempscore'] = 0
             current_turn = "player2"
             print()
             print("You did not score anything. It's player 2's turn. ")
             print()
+            time.sleep(5)
             return False
+
+        elif current_turn == "player2" and num_playing == 2:
+            score_board['player2tempscore'] = 0
+            current_turn = "player1"
+            print()
+            print("You did not score anything. It's player 1's turn. ")
+            print()
+            time.sleep(5)
+            return False
+
         elif current_turn == "player2" and num_playing > 2:
             score_board['player2tempscore'] = 0
             current_turn = "player3"
             print()
             print("You did not score anything. It's player 3's turn. ")
             print()
+            time.sleep(5)
             return False
+
+
+        elif current_turn == "player3" and num_playing == 3:
+            score_board['player3tempscore'] = 0
+            current_turn = "player1"
+            print()
+            print("You did not score anything. It's player 1's turn. ")
+            print()
+            time.sleep(5)
+            return False
+
+
         elif current_turn == "player3" and num_playing > 3:
             score_board['player3tempscore'] = 0
             current_turn = "player4"
             print()
             print("You did not score anything. It's player 4's turn. ")
             print()
+            time.sleep(5)
             return False
+
+
+
         elif current_turn == "player4":
             score_board['player4tempscore'] = 0
             current_turn = "player1"
             print()
             print("You did not score anything. It's player 1's turn. ")
             print()
+            time.sleep(5)
             return False
+
         else:
             print()
             print("You didn't roll anything, try again! ")
             print()
+            time.sleep(5)
             return False
     else:
         return True
 
+def list_commands():
+    print()
+    print(" 1 - 6   -  Hold/Unhold Dice")
+    print("(R)oll - roll all dice not currently held. ")
+    print("(D)one - finish your turn and add your score to bank")
+    print("(S)core - list current scores")
+    print()
 
 def hold_dice():
     global scores_possible
@@ -678,7 +741,8 @@ def hold_dice():
     dice_held = False
     if check_if_scored() == True:
         while holding:
-            hold_input = str(input("What number die would you like to hold? Please type in (1 - 6) to hold a die for next turn. Or '(R)oll' the leftover dice. "))
+            list_commands()
+            hold_input = str(input("Please enter an input... "))
 
             if hold_input == '1':
 
@@ -786,6 +850,23 @@ def hold_dice():
                 roll_next()
                 break
 
+            elif str(hold_input).lower() == "s" or str(hold_input).lower() == "score":
+                print()
+                print("⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹    CURRENT SCORES     ⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹⏹")
+                n=1
+                for x in range(num_playing):
+                    string = "player{n}".format(n=n)
+                    n+=1
+                    currentplayer = players_container[string].title()
+                    print()
+                    print("{name}   -   {score}".format(name=currentplayer.title(),score=score_board[string]))
+                    print()
+
+                time.sleep(6)
+                reset_board()
+                continue
+
+
             elif str(hold_input).lower() == "done" or str(hold_input).lower() == "d":
                 global final_score
 
@@ -843,26 +924,15 @@ def roll_next():
 def finish_turn():
     global scores_possible
     global final_score
-
-    if rolls_left == 2:
-        update_temp_score()
-        update_score()
-        change_turn()
-        reset_indices()
-        create_roll()
-
-        scores_possible = calc_score_rolled()
-        hold_dice()
-
-    else:
-        final_score = True
-        update_score()
-        final_score = False
-        change_turn()
-        reset_indices()
-        create_roll()
-        scores_possible = calc_score_rolled()
-        hold_dice()
+    update_temp_score()
+    final_score = True
+    update_score()
+    final_score = False
+    change_turn()
+    reset_indices()
+    create_roll()
+    scores_possible = calc_score_rolled()
+    hold_dice()
 
 
 
@@ -874,10 +944,10 @@ def update_temp_score():
     final_score = False
     if score:
         highest_score_key = max(score, key=score.get)
-        print (score,"scoreheldtest")
-        print (highest_score_key)
+
         score_board[temp_player] += score[highest_score_key]
-        print(score_board[temp_player],"tempscore")
+
+
 
 
 
@@ -895,14 +965,5 @@ def update_score():
         print (score_board)
 
 
-
-
-
-
-
 define_player_names(initiate_players())
-print (players_container)
-
-
-print(scores_possible)
 hold_dice()
